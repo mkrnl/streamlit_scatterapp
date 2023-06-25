@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 import seaborn as sns
 import chardet
+import tempfile
+import os
 
 
 st.title("散布図行列作成ツール")
@@ -26,10 +28,18 @@ def main():
             file_extension = uploaded_file.name.split(".")[-1]
             
             if file_extension =="csv":
-                df = pd.read_csv(uploaded_file,encoding = encoding)
+                with tempfile.NamedTemporaryFile(delete=False) as temp_file:
+                    temp_filename = temp_file.name
+                    temp_file.write(uploaded_file.getvalue())
+
+                # 保存した一時的なファイルを読み込む
+                df = pd.read_csv(temp_filename, encoding=encoding,header = 0)
+
+                # 一時的なファイルを削除
+                os.remove(temp_filename)
             
             else:
-                df = pd.read_excel(uploaded_file)
+                df = pd.read_excel(uploaded_file,header = 0)
 
             if submit :
             
